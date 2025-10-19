@@ -1,0 +1,284 @@
+version: "3.9"
+
+# -----------------------------------------------------------
+# Mediaserver stack - Abel
+# Root data dir configs: /mnt/docker/stack-mediaserver
+# Media root: /mnt/alexandria/mediaserver
+# Netwerk: 'media' -> interne DNS (hostnames zoals jellyfin, radarr, sonarr, prowlarr, ...)
+# VPN: gluetun (WireGuard). qBittorrent/SABnzbd/RDTClient delen gluetun netns.
+# Prowlarr gebruikt gluetun's HTTP proxy, zodat hostname 'prowlarr' intern blijft werken.
+# -----------------------------------------------------------
+
+x-common-env: &common-env
+  PUID: ${PUID:-1000}
+  PGID: ${PGID:-1000}
+  TZ: Europe/Amsterdam
+
+networks:
+  media:
+    driver: bridge
+
+services:
+
+  # -------------------- VPN (WireGuard) --------------------
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: gluetun
+    cap_add: [NET_ADMIN]
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    networks: [media]
+    environment:
+      TZ: Europe/Amsterdam
+      VPN_SERVICE_PROVIDER: custom
+      VPN_TYPE: wireguard
+      # -- Vereist:
+      WIREGUARD_PRIVATE_KEY: ${WIREGUARD_PRIVATE_KEY}
+      WIREGUARD_ADDRESSES: ${WIREGUARD_ADDRESSES:-10.13.13.2/32}
+      # -- Meestal nodig bij custom endpoints:
+      WIREGUARD_ENDPOINT_IP: ${WIREGUARD_ENDPOINT_IP}
+      WIREGUARD_ENDPOINT_PORT: ${WIREGUARD_ENDPOINT_PORT:-51820}
+      WIREGUARD_PUBLIC_KEY: ${WIREGUARD_PUBLIC_KEY}
+      # Optioneel: pre-shared key
+      # WIREGUARD_PRESHARED_KEY: ${WIREGUARD_PRESHARED_KEY}
+      # Kill-switch / firewall
+      FIREWALL: "on"
+      # HTTP proxy aan voor Prowlarr (en evt. andere apps die proxy ondersteunen)
+      HTTPPROXY: "on"
+      HTTPPROXY_LOG: "on"
+      HTTPPROXY_PORT: 8888
+    volumes:
+      - /mnt/docker/stack-mediaserver/gluetun:/gluetun
+    # Belangrijk: alléén hier publiceer je poorten van services die 'network_mode: service:gluetun' gebruiken
+    ports:
+      # qBittorrent
+      - "8080:8080"       # WebUI qBittorrent
+      - "6881:6881"       # BitTorrent TCP
+      - "6881:6881/udp"   # BitTorrent UDP
+      # SABnzbd
+      - "8081:8080"       # WebUI SABnzbd (hostpoort 8081)
+      # Real-Debrid client
+      - "6500:6500"       # WebUI RDTClient (pas aan indien anders)
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "-", "https://ipinfo.io/ip"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  # -------------------- Download clients (achter VPN) --------------------
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    network_mode: "service:gluetun"
+    depends_on: [gluetun]
+    environment:
+      <<: *common-env
+      WEBUI_PORT: 8080
+    volumes:
+      - /mnt/docker/stack-mediaserver/qbittorrent:/config
+      - /mnt/alexandria/mediaserver/downloads:/downloads
+    restart: unless-stopped
+
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    network_mode: "service:gluetun"
+    depends_on: [gluetun]
+    environment: *common-env
+    volumes:
+      - /mnt/docker/stack-mediaserver/sabnzbd:/config
+      - /mnt/alexandria/mediaserver/downloads:/downloads
+    restart: unless-stopped
+
+  rdtclient:
+    image: rogerfar/rdtclient:latest
+    container_name: real-debrid-client
+    network_mode: "service:gluetun"
+    depends_on: [gluetun]
+    environment: *common-env
+    volumes:
+      - /mnt/docker/stack-mediaserver/real-debrid-client:/data
+      - /mnt/alexandria/mediaserver/downloads:/downloads
+    restart: unless-stopped
+
+  # -------------------- Indexer (achter VPN via proxy) --------------------
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    networks: [media]
+    environment: *common-env
+    volumes:
+      - /mnt/docker/stack-mediaserver/prowlarr:/config
+    ports:
+      - "9696:9696"
+    restart: unless-stopped
+    # In Prowlarr GUI: Settings → Indexers → Proxy:
+    #   Type: HTTP
+    #   Host: gluetun
+    #   Port: 8888
+    # (Zo gaan alle calls naar indexers via de VPN, maar blijft 'prowlarr' als hostname bruikbaar.)
+
+  # -------------------- Media managers --------------------
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    networks: [media]
+    environment: *common-env
+    volumes:
+      - /mnt/docker/stack-mediaserver/radarr:/config
+      - /mnt/alexandria/mediaserver/movies:/movies
+      - /mnt/alexandria/mediaserver/downloads:/downloads
+    ports:
+      - "7878:7878"
+    restart: unless-stopped
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    networks: [media]
+    environment: *common-env
+    volumes:
+      - /mnt/docker/stack-mediaserver/sonarr:/config
+      - /mnt/alexandria/mediaserver/shows:/shows
+      - /mnt/alexandria/mediaserver/downloads:/downloads
+    ports:
+      - "8989:8989"
+    restart: unless-stopped
+
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    networks: [media]
+    environment: *common-env
+    volumes:
+      - /mnt/docker/stack-mediaserver/lidarr:/config
+      - /mnt/alexandria/mediaserver/music:/music
+      - /mnt/alexandria/mediaserver/downloads:/downloads
+    ports:
+      - "8686:8686"
+    restart: unless-stopped
+
+  readarr:
+    image: lscr.io/linuxserver/readarr:nightly
+    container_name: readarr
+    networks: [media]
+    environment: *common-env
+    volumes:
+      - /mnt/docker/stack-mediaserver/readarr:/config
+      - /mnt/alexandria/mediaserver/books:/books
+      - /mnt/alexandria/mediaserver/downloads:/downloads
+    ports:
+      - "8787:8787"
+    restart: unless-stopped
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    networks: [media]
+    environment: *common-env
+    volumes:
+      - /mnt/docker/stack-mediaserver/bazarr:/config
+      - /mnt/alexandria/mediaserver/movies:/movies
+      - /mnt/alexandria/mediaserver/shows:/shows
+    ports:
+      - "6767:6767"
+    restart: unless-stopped
+
+  # -------------------- Media servers / frontends --------------------
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    networks: [media]
+    environment: *common-env
+    volumes:
+      - /mnt/docker/stack-mediaserver/jellyfin/config:/config
+      - /mnt/docker/stack-mediaserver/jellyfin/cache:/cache
+      - /mnt/alexandria/mediaserver/movies:/movies:ro
+      - /mnt/alexandria/mediaserver/shows:/shows:ro
+    ports:
+      - "8096:8096"   # HTTP
+      - "8920:8920"   # HTTPS (optioneel, vereist cert)
+    restart: unless-stopped
+
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    networks: [media]
+    environment: *common-env
+    volumes:
+      - /mnt/docker/stack-mediaserver/jellyseerr:/app/config
+    ports:
+      - "5055:5055"
+    restart: unless-stopped
+
+  navidrome:
+    image: deluan/navidrome:latest
+    container_name: navidrome
+    networks: [media]
+    environment:
+      <<: *common-env
+      ND_LOGLEVEL: info
+    volumes:
+      - /mnt/docker/stack-mediaserver/navidrome:/data
+      - /mnt/alexandria/mediaserver/music:/music:ro
+    ports:
+      - "4533:4533"
+    restart: unless-stopped
+
+  calibre-web:
+    image: lscr.io/linuxserver/calibre-web:latest
+    container_name: calibre-web
+    networks: [media]
+    environment:
+      <<: *common-env
+      DOCKER_MODS: linuxserver/mods:universal-calibre
+    volumes:
+      - /mnt/docker/stack-mediaserver/calibre-web/config:/config
+      - /mnt/alexandria/mediaserver/books:/books
+    ports:
+      - "8083:8083"
+    restart: unless-stopped
+
+  # -------------------- BookLore + MariaDB --------------------
+  booklore-mariadb:
+    image: lscr.io/linuxserver/mariadb:11.4.5
+    container_name: booklore-mariadb
+    networks: [media]
+    environment:
+      <<: *common-env
+      MYSQL_ROOT_PASSWORD: ${BOOKLORE_DB_ROOT_PASSWORD:-change_me_root}
+      MYSQL_DATABASE: booklore
+      MYSQL_USER: booklore
+      MYSQL_PASSWORD: ${BOOKLORE_DB_PASSWORD:-change_me}
+    volumes:
+      - /mnt/docker/stack-mediaserver/booklore/mariadb:/config
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  booklore:
+    image: booklore/booklore:latest
+    container_name: booklore
+    networks: [media]
+    depends_on:
+      booklore-mariadb:
+        condition: service_healthy
+    environment:
+      USER_ID: ${PUID:-1000}
+      GROUP_ID: ${PGID:-1000}
+      TZ: Europe/Amsterdam
+      DATABASE_URL: jdbc:mariadb://booklore-mariadb:3306/booklore
+      DATABASE_USERNAME: booklore
+      DATABASE_PASSWORD: ${BOOKLORE_DB_PASSWORD:-change_me}
+      BOOKLORE_PORT: 6060
+    volumes:
+      - /mnt/docker/stack-mediaserver/booklore/config:/app/data
+      - /mnt/docker/stack-mediaserver/booklore/bookdrop:/bookdrop
+      - /mnt/alexandria/mediaserver/books:/books
+    ports:
+      - "6060:6060"
+    restart: unless-stopped
