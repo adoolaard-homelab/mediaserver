@@ -201,16 +201,16 @@ services:
       - "8920:8920"   # HTTPS (optioneel, vereist cert)
     restart: unless-stopped
 
- jellyseerr:
-   image: fallenbagel/jellyseerr:preview-seerr
-   container_name: jellyseerr
-   networks: [media]
-   environment: *common-env
-   volumes:
-     - /mnt/docker/stack-mediaserver/jellyseerr:/app/config
-   ports:
-     - "5055:5055"
-   restart: unless-stopped
+  jellyseerr:
+    image: fallenbagel/jellyseerr:preview-seerr
+    container_name: jellyseerr
+    networks: [media]
+    environment: *common-env
+    volumes:
+      - /mnt/docker/stack-mediaserver/jellyseerr:/app/config
+    ports:
+      - "5055:5055"
+    restart: unless-stopped
 
 #  navidrome:
 #    image: deluan/navidrome:latest
