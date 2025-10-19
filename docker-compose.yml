@@ -127,8 +127,8 @@ services:
     environment: *common-env
     volumes:
       - /mnt/docker/stack-mediaserver/radarr:/config
-      - /mnt/alexandria/mediaserver/movies:/movies
-      - /mnt/alexandria/mediaserver/downloads:/downloads
+      - /mnt/alexandria/mediaserver/movies:/mnt/mediaserver/movies
+      - /mnt/alexandria/mediaserver/downloads:/mnt/mediaserver/downloads
     ports:
       - "7878:7878"
     restart: unless-stopped
@@ -140,8 +140,8 @@ services:
     environment: *common-env
     volumes:
       - /mnt/docker/stack-mediaserver/sonarr:/config
-      - /mnt/alexandria/mediaserver/shows:/shows
-      - /mnt/alexandria/mediaserver/downloads:/downloads
+      - /mnt/alexandria/mediaserver/shows:/mnt/mediaserver/shows
+      - /mnt/alexandria/mediaserver/downloads:/mnt/mediaserver/downloads
     ports:
       - "8989:8989"
     restart: unless-stopped
@@ -153,8 +153,8 @@ services:
     environment: *common-env
     volumes:
       - /mnt/docker/stack-mediaserver/lidarr:/config
-      - /mnt/alexandria/mediaserver/music:/music
-      - /mnt/alexandria/mediaserver/downloads:/downloads
+      - /mnt/alexandria/mediaserver/music:/mnt/mediaserver/music
+      - /mnt/alexandria/mediaserver/downloads:/mnt/mediaserver/downloads
     ports:
       - "8686:8686"
     restart: unless-stopped
@@ -166,8 +166,8 @@ services:
   #   environment: *common-env
   #   volumes:
   #     - /mnt/docker/stack-mediaserver/readarr:/config
-  #     - /mnt/alexandria/mediaserver/books:/books
-  #     - /mnt/alexandria/mediaserver/downloads:/downloads
+  #     - /mnt/alexandria/mediaserver/books:/mnt/mediaserver/books
+  #     - /mnt/alexandria/mediaserver/downloads:/mnt/mediaserver/downloads
   #   ports:
   #     - "8787:8787"
   #   restart: unless-stopped
@@ -179,8 +179,8 @@ services:
     environment: *common-env
     volumes:
       - /mnt/docker/stack-mediaserver/bazarr:/config
-      - /mnt/alexandria/mediaserver/movies:/movies
-      - /mnt/alexandria/mediaserver/shows:/shows
+      - /mnt/alexandria/mediaserver/movies:/mnt/mediaserver/movies
+      - /mnt/alexandria/mediaserver/shows:/mnt/mediaserver/shows
     ports:
       - "6767:6767"
     restart: unless-stopped
@@ -194,23 +194,23 @@ services:
     volumes:
       - /mnt/docker/stack-mediaserver/jellyfin/config:/config
       - /mnt/docker/stack-mediaserver/jellyfin/cache:/cache
-      - /mnt/alexandria/mediaserver/movies:/movies:ro
-      - /mnt/alexandria/mediaserver/shows:/shows:ro
+      - /mnt/alexandria/mediaserver/movies:/mnt/mediaserver/movies
+      - /mnt/alexandria/mediaserver/shows:/mnt/mediaserver/shows
     ports:
       - "8096:8096"   # HTTP
       - "8920:8920"   # HTTPS (optioneel, vereist cert)
     restart: unless-stopped
 
-#  jellyseerr:
-#    image: fallenbagel/jellyseerr:preview-seerr
-#    container_name: jellyseerr
-#    networks: [media]
-#    environment: *common-env
-#    volumes:
-#      - /mnt/docker/stack-mediaserver/jellyseerr:/app/config
-#    ports:
-#      - "5055:5055"
-#    restart: unless-stopped
+ jellyseerr:
+   image: fallenbagel/jellyseerr:preview-seerr
+   container_name: jellyseerr
+   networks: [media]
+   environment: *common-env
+   volumes:
+     - /mnt/docker/stack-mediaserver/jellyseerr:/app/config
+   ports:
+     - "5055:5055"
+   restart: unless-stopped
 
 #  navidrome:
 #    image: deluan/navidrome:latest
