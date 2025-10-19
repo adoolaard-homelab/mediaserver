@@ -208,6 +208,21 @@ services:
       - "8920:8920"   # HTTPS (optioneel, vereist cert)
     restart: unless-stopped
 
+  jellyfin-2:
+    image: linuxserver/jellyfin:latest
+    container_name: jellyfin-2
+    networks: [media]
+    environment: *common-env
+    volumes:
+      - /mnt/docker/stack-mediaserver/jellyfin2/config:/config
+      - /mnt/docker/stack-mediaserver/jellyfin2/cache:/cache
+      # Hieronder de toegestande directories op de mediaserver zelf
+      - /mnt/alexandria/mediaserver/movies:/mnt/mediaserver/movies
+      - /mnt/alexandria/mediaserver/shows:/mnt/mediaserver/shows
+    ports:
+      - "8097:8096"   # HTTP
+    restart: unless-stopped
+
   jellyseerr:
     image: fallenbagel/jellyseerr:preview-seerr
     container_name: jellyseerr
