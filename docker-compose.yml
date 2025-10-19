@@ -194,33 +194,22 @@ services:
     volumes:
       - /mnt/docker/stack-mediaserver/jellyfin/config:/config
       - /mnt/docker/stack-mediaserver/jellyfin/cache:/cache
-      - /mnt/docker/stack-mediaserver/jellyfin/data:/data
-      - /mnt/docker/stack-mediaserver/jellyfin/log:/log
-      - /mnt/docker/stack-mediaserver/jellyfin/metadata:/metadata
-      - /mnt/docker/stack-mediaserver/jellyfin/plugins:/plugins
-      - /mnt/docker/stack-mediaserver/jellyfin/root:/root
-      - /mnt/docker/stack-mediaserver/jellyfin/web-config.json:/web-config.json
-      # Hieronder de toegestande directories op de mediaserver zelf
-      - /mnt/alexandria/mediaserver/movies:/mnt/mediaserver/movies
-      - /mnt/alexandria/mediaserver/shows:/mnt/mediaserver/shows
+      # - /mnt/docker/stack-mediaserver/jellyfin/data:/data
+      # - /mnt/docker/stack-mediaserver/jellyfin/log:/log
+      # - /mnt/docker/stack-mediaserver/jellyfin/metadata:/metadata
+      # - /mnt/docker/stack-mediaserver/jellyfin/plugins:/plugins
+      # - /mnt/docker/stack-mediaserver/jellyfin/root:/root
+      # - /mnt/docker/stack-mediaserver/jellyfin/web-config.json:/web-config.json
+      # Hieronder de toegestande directories op de mediaserver zelf, bind is blijkbaar aangeraden
+      - type: bind
+        source: /mnt/alexandria/mediaserver/movies
+        target: /mnt/mediaserver/movies
+      - type: bind
+        source: /mnt/alexandria/mediaserver/shows
+        target: /mnt/mediaserver/shows
     ports:
       - "8096:8096"   # HTTP
-      - "8920:8920"   # HTTPS (optioneel, vereist cert)
-    restart: unless-stopped
-
-  jellyfin-2:
-    image: linuxserver/jellyfin:latest
-    container_name: jellyfin-2
-    networks: [media]
-    environment: *common-env
-    volumes:
-      - /mnt/docker/stack-mediaserver/jellyfin2/config:/config
-      - /mnt/docker/stack-mediaserver/jellyfin2/cache:/cache
-      # Hieronder de toegestande directories op de mediaserver zelf
-      - /mnt/alexandria/mediaserver/movies:/mnt/mediaserver/movies
-      - /mnt/alexandria/mediaserver/shows:/mnt/mediaserver/shows
-    ports:
-      - "8097:8096"   # HTTP
+      # - "8920:8920"   # HTTPS (optioneel, vereist cert)
     restart: unless-stopped
 
   jellyseerr:
