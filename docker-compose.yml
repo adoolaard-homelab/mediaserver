@@ -199,44 +199,44 @@ services:
       - "8920:8920"   # HTTPS (optioneel, vereist cert)
     restart: unless-stopped
 
-  jellyseerr:
-    image: fallenbagel/jellyseerr:preview-seerr
-    container_name: jellyseerr
-    networks: [media]
-    environment: *common-env
-    volumes:
-      - /mnt/docker/stack-mediaserver/jellyseerr:/app/config
-    ports:
-      - "5055:5055"
-    restart: unless-stopped
+#  jellyseerr:
+#    image: fallenbagel/jellyseerr:preview-seerr
+#    container_name: jellyseerr
+#    networks: [media]
+#    environment: *common-env
+#    volumes:
+#      - /mnt/docker/stack-mediaserver/jellyseerr:/app/config
+#    ports:
+#      - "5055:5055"
+#    restart: unless-stopped
 
-  navidrome:
-    image: deluan/navidrome:latest
-    container_name: navidrome
-    networks: [media]
-    environment:
-      <<: *common-env
-      ND_LOGLEVEL: info
-    volumes:
-      - /mnt/docker/stack-mediaserver/navidrome:/data
-      - /mnt/alexandria/mediaserver/music:/music:ro
-    ports:
-      - "4533:4533"
-    restart: unless-stopped
+#  navidrome:
+#    image: deluan/navidrome:latest
+#    container_name: navidrome
+#    networks: [media]
+#    environment:
+#      <<: *common-env
+#      ND_LOGLEVEL: info
+#    volumes:
+#      - /mnt/docker/stack-mediaserver/navidrome:/data
+#      - /mnt/alexandria/mediaserver/music:/music:ro
+#    ports:
+#      - "4533:4533"
+#    restart: unless-stopped
 
-  calibre-web:
-    image: lscr.io/linuxserver/calibre-web:latest
-    container_name: calibre-web
-    networks: [media]
-    environment:
-      <<: *common-env
-      DOCKER_MODS: linuxserver/mods:universal-calibre
-    volumes:
-      - /mnt/docker/stack-mediaserver/calibre-web/config:/config
-      - /mnt/alexandria/mediaserver/books:/books
-    ports:
-      - "8083:8083"
-    restart: unless-stopped
+#  calibre-web:
+#    image: lscr.io/linuxserver/calibre-web:latest
+#    container_name: calibre-web
+#    networks: [media]
+#    environment:
+#      <<: *common-env
+#      DOCKER_MODS: linuxserver/mods:universal-calibre
+#    volumes:
+#      - /mnt/docker/stack-mediaserver/calibre-web/config:/config
+#      - /mnt/alexandria/mediaserver/books:/books
+#    ports:
+#      - "8083:8083"
+#    restart: unless-stopped
 
   # -------------------- BookLore + MariaDB --------------------
 #  booklore-mariadb:
