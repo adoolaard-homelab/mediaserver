@@ -159,18 +159,18 @@ services:
       - "8686:8686"
     restart: unless-stopped
 
-  readarr:
-    image: lscr.io/linuxserver/readarr:nightly
-    container_name: readarr
-    networks: [media]
-    environment: *common-env
-    volumes:
-      - /mnt/docker/stack-mediaserver/readarr:/config
-      - /mnt/alexandria/mediaserver/books:/books
-      - /mnt/alexandria/mediaserver/downloads:/downloads
-    ports:
-      - "8787:8787"
-    restart: unless-stopped
+  # readarr:
+  #   image: lscr.io/linuxserver/readarr:nightly
+  #   container_name: readarr
+  #   networks: [media]
+  #   environment: *common-env
+  #   volumes:
+  #     - /mnt/docker/stack-mediaserver/readarr:/config
+  #     - /mnt/alexandria/mediaserver/books:/books
+  #     - /mnt/alexandria/mediaserver/downloads:/downloads
+  #   ports:
+  #     - "8787:8787"
+  #   restart: unless-stopped
 
   bazarr:
     image: lscr.io/linuxserver/bazarr:latest
