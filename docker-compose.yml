@@ -194,6 +194,13 @@ services:
     volumes:
       - /mnt/docker/stack-mediaserver/jellyfin/config:/config
       - /mnt/docker/stack-mediaserver/jellyfin/cache:/cache
+      - /mnt/docker/stack-mediaserver/jellyfin/data:/data
+      - /mnt/docker/stack-mediaserver/jellyfin/log:/log
+      - /mnt/docker/stack-mediaserver/jellyfin/metadata:/metadata
+      - /mnt/docker/stack-mediaserver/jellyfin/plugins:/plugins
+      - /mnt/docker/stack-mediaserver/jellyfin/root:/root
+      - /mnt/docker/stack-mediaserver/jellyfin/web-config.json:/web-config.json
+      # Hieronder de toegestande directories op de mediaserver zelf
       - /mnt/alexandria/mediaserver/movies:/mnt/mediaserver/movies
       - /mnt/alexandria/mediaserver/shows:/mnt/mediaserver/shows
     ports:
