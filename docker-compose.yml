@@ -119,6 +119,54 @@ services:
     #   Port: 8888
     # (Zo gaan alle calls naar indexers via de VPN, maar blijft 'prowlarr' als hostname bruikbaar.)
 
+# -------------------- FlareSolverr (headless browser to solve Cloudflare JS) --------------------
+flaresolverr:
+  image: ghcr.io/flaresolverr/flaresolverr:latest
+  container_name: flaresolverr
+  networks: [media]
+  environment:
+    <<: *common-env
+    # poort waarop FlareSolverr luistert; default is meestal 8191
+    PORT: 8191
+    # optionele log level
+    LOG_LEVEL: info
+    # Optie 1: gebruik gluetun's HTTP proxy voor al het uitgaande HTTP/HTTPS verkeer:
+    # (zorg dat gluetun HTTPPROXY aan heeft staan zoals in de gluetun service hierboven)
+    HTTP_PROXY: "http://gluetun:8888"
+    HTTPS_PROXY: "http://gluetun:8888"
+    # voorkom dat interne hosts via de proxy gaan
+    NO_PROXY: "localhost,127.0.0.1,gluetun,prowlarr"
+  volumes:
+    - /mnt/docker/stack-mediaserver/flaresolverr:/config
+    - /tmp:/tmp   # Playwright kan tijdelijke dirs gebruiken; pas aan indien nodig
+  ports:
+    - "8191:8191"
+  restart: unless-stopped
+  # Toelichting:
+  # - Met de HTTP_PROXY/HTTPS_PROXY env vars routeer je al het HTTP(S) verkeer via gluetun:8888.
+  # - Alternatief (aanbevolen voor fijnmazige controle): laat FlareSolverr zelf per-request een proxy gebruiken
+  #   door bij de API-aanroep een "proxy" object mee te geven (voorbeeld hieronder).
+  #
+  # Voorbeeld van een per-request proxy in de FlareSolverr API JSON:
+  # {
+  #   "cmd": "request.get",
+  #   "url": "https://example.com",
+  #   "maxTimeout": 60000,
+  #   "proxy": {
+  #     "type": "http",         # of "socks5"
+  #     "host": "gluetun",
+  #     "port": 8888
+  #     # "username": "user",   # alleen indien proxy authenticatie nodig is
+  #     # "password": "pass"
+  #   }
+  # }
+  #
+  # Opmerking: Als je flaresolverr in 'network_mode: "service:gluetun"' zou zetten, gaat al het uitgaand verkeer
+  # automatisch via de VPN, maar dan is flaresolverr niet direct bereikbaar via het 'media' netwerk onder
+  # de hostname 'flaresolverr' (tenzij je poort 8191 op gluetun publiceert). Daarom is de HTTP proxy-setup
+  # vaak handiger: flaresolverr blijft bereikbaar op het media-netwerk en stuurt geselecteerd uitgaand verkeer via gluetun.
+
+
   # -------------------- Media managers --------------------
   radarr:
     image: lscr.io/linuxserver/radarr:latest
