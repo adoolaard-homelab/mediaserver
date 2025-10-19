@@ -190,9 +190,9 @@ services:
     image: linuxserver/jellyfin:latest
     container_name: jellyfin
     networks: [media]
-    environment: 
-      - *common-env
-      - JELLYFIN_PublishedServerUrl=https://ms-mediaserver.adoolaard.nl
+    environment:
+      <<: *common-env
+      JELLYFIN_PublishedServerUrl: "https://ms-mediaserver.adoolaard.nl"
     volumes:
       - /mnt/docker/stack-mediaserver/jellyfin/config:/config
       - /mnt/docker/stack-mediaserver/jellyfin/cache:/cache
