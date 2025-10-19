@@ -119,6 +119,21 @@ services:
     #   Port: 8888
     # (Zo gaan alle calls naar indexers via de VPN, maar blijft 'prowlarr' als hostname bruikbaar.)
 
+  spotweb:
+    image: erikdevries/spotweb:latest
+    container_name: spotweb
+    networks: [media]
+    environment:
+      <<: *common-env
+      DB_ENGINE: pdo_sqlite
+      DB_NAME: /data/spotweb.db3
+      CRON_INTERVAL: "*/5 * * * *"
+    volumes:
+      - /mnt/docker/stack-mediaserver/spotweb:/data
+    ports:
+      - "8085:80"
+    restart: unless-stopped
+
   # -------------------- FlareSolverr (headless browser to solve Cloudflare JS) --------------------
   flaresolverr-gluetun:
     image: ghcr.io/flaresolverr/flaresolverr:latest
