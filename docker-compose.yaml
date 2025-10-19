@@ -241,44 +241,44 @@ services:
     restart: unless-stopped
 
   # -------------------- BookLore + MariaDB --------------------
-  booklore-mariadb:
-    image: lscr.io/linuxserver/mariadb:11.4.5
-    container_name: booklore-mariadb
-    networks: [media]
-    environment:
-      <<: *common-env
-      MYSQL_ROOT_PASSWORD: ${BOOKLORE_DB_ROOT_PASSWORD:-change_me_root}
-      MYSQL_DATABASE: booklore
-      MYSQL_USER: booklore
-      MYSQL_PASSWORD: ${BOOKLORE_DB_PASSWORD:-change_me}
-    volumes:
-      - /mnt/docker/stack-mediaserver/booklore/mariadb:/config
-    healthcheck:
-      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-    restart: unless-stopped
+#  booklore-mariadb:
+#    image: lscr.io/linuxserver/mariadb:11.4.5
+#    container_name: booklore-mariadb
+#    networks: [media]
+#    environment:
+#      <<: *common-env
+#      MYSQL_ROOT_PASSWORD: ${BOOKLORE_DB_ROOT_PASSWORD:-change_me_root}
+#      MYSQL_DATABASE: booklore
+#      MYSQL_USER: booklore
+#      MYSQL_PASSWORD: ${BOOKLORE_DB_PASSWORD:-change_me}
+#    volumes:
+#      - /mnt/docker/stack-mediaserver/booklore/mariadb:/config
+#    healthcheck:
+#      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost"]
+#      interval: 5s
+#      timeout: 5s
+#      retries: 10
+#    restart: unless-stopped
 
-  booklore:
-    image: booklore/booklore:latest
-    container_name: booklore
-    networks: [media]
-    depends_on:
-      booklore-mariadb:
-        condition: service_healthy
-    environment:
-      USER_ID: ${PUID:-1000}
-      GROUP_ID: ${PGID:-1000}
-      TZ: Europe/Amsterdam
-      DATABASE_URL: jdbc:mariadb://booklore-mariadb:3306/booklore
-      DATABASE_USERNAME: booklore
-      DATABASE_PASSWORD: ${BOOKLORE_DB_PASSWORD:-change_me}
-      BOOKLORE_PORT: 6060
-    volumes:
-      - /mnt/docker/stack-mediaserver/booklore/config:/app/data
-      - /mnt/docker/stack-mediaserver/booklore/bookdrop:/bookdrop
-      - /mnt/alexandria/mediaserver/books:/books
-    ports:
-      - "6060:6060"
-    restart: unless-stopped
+#  booklore:
+#    image: booklore/booklore:latest
+#    container_name: booklore
+#    networks: [media]
+#    depends_on:
+#      booklore-mariadb:
+#        condition: service_healthy
+#    environment:
+#      USER_ID: ${PUID:-1000}
+#      GROUP_ID: ${PGID:-1000}
+#      TZ: Europe/Amsterdam
+#      DATABASE_URL: jdbc:mariadb://booklore-mariadb:3306/booklore
+#      DATABASE_USERNAME: booklore
+#      DATABASE_PASSWORD: ${BOOKLORE_DB_PASSWORD:-change_me}
+#      BOOKLORE_PORT: 6060
+#    volumes:
+#      - /mnt/docker/stack-mediaserver/booklore/config:/app/data
+#      - /mnt/docker/stack-mediaserver/booklore/bookdrop:/bookdrop
+#      - /mnt/alexandria/mediaserver/books:/books
+#    ports:
+#      - "6060:6060"
+#    restart: unless-stopped
