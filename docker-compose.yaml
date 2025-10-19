@@ -1,5 +1,3 @@
-version: "3.9"
-
 # -----------------------------------------------------------
 # Mediaserver stack - Abel
 # Root data dir configs: /mnt/docker/stack-mediaserver
