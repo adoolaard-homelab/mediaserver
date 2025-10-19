@@ -129,7 +129,7 @@ services:
       <<: *common-env
       DB_ENGINE: pdo_sqlite
       DB_NAME: /data/spotweb.db3
-      CRON_INTERVAL: "*/5 * * * *"
+      CRON_INTERVAL: "1 */1 * * *"
     volumes:
       - /mnt/docker/stack-mediaserver/spotweb:/data
     ports:
