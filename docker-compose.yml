@@ -144,7 +144,7 @@ services:
     restart: unless-stopped
 
 
-    flaresolverr-brightdata:
+  flaresolverr-brightdata:
     image: ghcr.io/flaresolverr/flaresolverr:latest
     container_name: flaresolverr-brightdata
     networks: [media]
