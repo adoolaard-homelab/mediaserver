@@ -92,7 +92,7 @@ services:
     restart: unless-stopped
 
   rdtclient:
-    image: rogerfar/rdtclient:latest
+    image: ghcr.io/rogerfar/rdtclient:latest
     container_name: real-debrid-client
     network_mode: "service:gluetun"
     depends_on: [gluetun]
@@ -202,7 +202,7 @@ services:
     restart: unless-stopped
 
   jellyseerr:
-    image: fallenbagel/jellyseerr:latest
+    image: fallenbagel/jellyseerr:preview-seerr
     container_name: jellyseerr
     networks: [media]
     environment: *common-env
