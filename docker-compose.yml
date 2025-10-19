@@ -28,15 +28,17 @@ services:
     networks: [media]
     environment:
       TZ: Europe/Amsterdam
-      VPN_SERVICE_PROVIDER: custom
+      VPN_SERVICE_PROVIDER: surfshark
       VPN_TYPE: wireguard
       # -- Vereist:
       WIREGUARD_PRIVATE_KEY: ${WIREGUARD_PRIVATE_KEY}
       WIREGUARD_ADDRESSES: ${WIREGUARD_ADDRESSES:-10.13.13.2/32}
       # -- Meestal nodig bij custom endpoints:
-      WIREGUARD_ENDPOINT_IP: ${WIREGUARD_ENDPOINT_IP}
-      WIREGUARD_ENDPOINT_PORT: ${WIREGUARD_ENDPOINT_PORT:-51820}
-      WIREGUARD_PUBLIC_KEY: ${WIREGUARD_PUBLIC_KEY}
+      # WIREGUARD_ENDPOINT_IP: ${WIREGUARD_ENDPOINT_IP}
+      # WIREGUARD_ENDPOINT_PORT: ${WIREGUARD_ENDPOINT_PORT:-51820}
+      # WIREGUARD_PUBLIC_KEY: ${WIREGUARD_PUBLIC_KEY}
+      # SERVER_COUNTRIES=Netherlands
+      
       # Optioneel: pre-shared key
       # WIREGUARD_PRESHARED_KEY: ${WIREGUARD_PRESHARED_KEY}
       # Kill-switch / firewall
