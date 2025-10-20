@@ -87,7 +87,7 @@ services:
     depends_on: [gluetun]
     environment:
       <<: *common-env
-      SABNZBD__PORT: 8081
+      # Let op: wijzig de SABnzbd-poort handmatig in /config/sabnzbd.ini (zie README).
     volumes:
       - /mnt/docker/stack-mediaserver/sabnzbd:/config
       - /mnt/alexandria/mediaserver/downloads:/downloads

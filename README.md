@@ -5,7 +5,8 @@ Docker Compose stack for Abel's mediaserver, bundling VPN-protected downloaders,
 ## Gebruik
 1. Pas paden in `docker-compose.yml` aan je eigen host aan (config en mediapaden).
 2. Vul de vereiste environment-variabelen in een `.env` bestand of je deployment tooling.
-3. Start de stack met `docker compose up -d`.
+3. Pas in `sabnzbd.ini` (pad: `/mnt/docker/stack-mediaserver/sabnzbd/sabnzbd.ini`) handmatig de `port` waarde aan naar `8081` voordat je SABnzbd start.
+4. Start de stack met `docker compose up -d`.
 
 ## Environment variabelen
 | Naam | Verplicht | Default | Beschrijving |
