@@ -77,7 +77,7 @@ services:
       WEBUI_PORT: 8080
     volumes:
       - /mnt/docker/stack-mediaserver/qbittorrent:/config
-      - /mnt/alexandria/mediaserver/downloads:/mnt/mediaserver/downloads/qbittorrent/
+      - /mnt/alexandria/mediaserver/downloads/qbittorrent:/mnt/mediaserver/downloads/qbittorrent/
     restart: unless-stopped
 
   sabnzbd:
@@ -90,7 +90,7 @@ services:
       # Let op: wijzig de SABnzbd-poort handmatig in /config/sabnzbd.ini (zie README).
     volumes:
       - /mnt/docker/stack-mediaserver/sabnzbd:/config
-      - /mnt/alexandria/mediaserver/downloads:/mnt/mediaserver/downloads/sabnzbd/
+      - /mnt/alexandria/mediaserver/downloads/sabnzbd:/mnt/mediaserver/downloads/sabnzbd/
     restart: unless-stopped
 
   rdtclient:
@@ -101,7 +101,7 @@ services:
     environment: *common-env
     volumes:
       - /mnt/docker/stack-mediaserver/real-debrid-client:/data
-      - /mnt/alexandria/mediaserver/downloads:/mnt/mediaserver/downloads/real-debrid-client/
+      - /mnt/alexandria/mediaserver/downloads/real-debrid-client:/mnt/mediaserver/downloads/real-debrid-client/
     restart: unless-stopped
 
   # -------------------- Indexer (achter VPN via proxy) --------------------
