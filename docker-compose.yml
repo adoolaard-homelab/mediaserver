@@ -294,7 +294,7 @@ services:
     image: filegator/filegator:latest
     container_name: filegator
     ports:
-      - "8080:8080"
+      - "9090:8080"
     volumes:
       - /mnt/docker/stack-mediaserver/filegator:/var/www/filegator/repository
       - type: bind
